@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">273832271092</string>
+    <string name="google_api_key" translatable="false">AIzaSyC7UTgvQSdYjg2yy0oNgbpmqHGEtoObD-I</string>
+    <string name="google_app_id" translatable="false">1:273832271092:android:cb70a6678ae8aa7931d2a1</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyC7UTgvQSdYjg2yy0oNgbpmqHGEtoObD-I</string>
+    <string name="google_storage_bucket" translatable="false">soundwire-305.firebasestorage.app</string>
+    <string name="project_id" translatable="false">soundwire-305</string>
+</resources>
