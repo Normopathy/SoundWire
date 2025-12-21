@@ -1,49 +1,139 @@
 package com.soundwire
 
-import com.google.firebase.Timestamp
+/**
+ * Модели для работы с локальным backend (Node.js + MySQL).
+ * Firebase полностью убран.
+ */
 
-// Модель пользователя
-data class AppUser(
-    val uid: String = "",
-    val email: String = "",
-    val displayName: String = "",
-    val photoURL: String? = null,
-    val status: String = "В сети",
-    val phoneNumber: String? = null,
-    val contacts: List<String> = emptyList(),
-    val chatIds: List<String> = emptyList(),
-    val lastSeen: Timestamp = Timestamp.now(),
-    val fcmToken: String? = null
+data class User(
+    val id: Int,
+    val email: String,
+    val username: String,
+    val status: String? = null,
+    val avatarUrl: String? = null,
+    val lastSeen: Long? = null
 )
 
-// Модель чата
-data class Chat(
-    val chatId: String = "",
-    val type: String = "private",
-    val participants: List<String> = emptyList(),
-    val lastMessage: String = "",
-    val lastMessageTime: Timestamp = Timestamp.now(),
-    val chatName: String? = null,
-    val chatImage: String? = null,
-    val createdBy: String = "",
-    val createdAt: Timestamp = Timestamp.now(),
-    val unreadCount: Map<String, Int> = emptyMap()
+data class AuthResponse(
+    val token: String,
+    val user: User
 )
 
-// Модель сообщения для адаптера
-data class ChatMessage(
-    val sender: String,
-    val text: String,
-    val timestamp: Timestamp,
-    val avatarUrl: String? = null
+data class ApiOkResponse(
+    val ok: Boolean,
+    val already: Boolean? = null
 )
 
-// Модель запроса на добавление в контакты
+data class RegisterRequest(
+    val email: String,
+    val password: String,
+    val username: String
+)
+
+data class LoginRequest(
+    val email: String,
+    val password: String
+)
+
+data class UpdateProfileRequest(
+    val username: String,
+    val status: String
+)
+
+data class UploadAvatarResponse(
+    val avatarUrl: String
+)
+
+// ----------- CONTACTS -----------
+
+data class SendContactRequest(
+    val toUserId: Int
+)
+
+data class SendContactRequestResponse(
+    val ok: Boolean,
+    val requestId: Int? = null,
+    val already: Boolean? = null,
+    val accepted: Boolean? = null
+)
+
 data class ContactRequest(
-    val requestId: String = "",
-    val fromUserId: String = "",
-    val toUserId: String = "",
-    val status: String = "pending",
-    val timestamp: Timestamp = Timestamp.now(),
-    val message: String = ""
+    val id: Int,
+    val status: String,
+    val createdAt: Long? = null,
+    val fromUser: User? = null,
+    val toUser: User? = null
+)
+
+// ----------- CHATS -----------
+
+data class CreateChatRequest(
+    val otherUserId: Int
+)
+
+data class CreateGroupChatRequest(
+    val title: String,
+    val participantIds: List<Int>
+)
+
+data class AddParticipantsRequest(
+    val userIds: List<Int>
+)
+
+/**
+ * Чат в списке.
+ * - private: otherUser != null
+ * - group: title != null, membersCount != null
+ */
+data class ChatSummary(
+    val id: Int,
+    val type: String,
+    val title: String? = null,
+    val avatarUrl: String? = null,
+    val membersCount: Int? = null,
+    val otherUser: User? = null,
+    val lastMessage: String? = null,
+    val lastMessageTime: Long? = null,
+    val createdAt: Long? = null
+)
+
+/**
+ * Сообщение.
+ * type: text | image | audio | file
+ */
+data class Message(
+    val id: Long,
+    val chatId: Int,
+    val senderId: Int,
+    val type: String = "text",
+    val text: String = "",
+    val fileUrl: String? = null,
+    val fileName: String? = null,
+    val mimeType: String? = null,
+    val durationMs: Long? = null,
+    val createdAt: Long,
+    val sender: User? = null
+)
+
+// Участник группы
+
+data class ChatParticipant(
+    val user: User,
+    val role: String
+)
+
+data class UploadChatAvatarResponse(
+    val avatarUrl: String
+)
+
+// ----------- MUSIC -----------
+
+enum class TrackSource { LOCAL, SERVER }
+
+data class Track(
+    val id: String,
+    val title: String,
+    val artist: String? = null,
+    val uri: String,
+    val source: TrackSource
 )

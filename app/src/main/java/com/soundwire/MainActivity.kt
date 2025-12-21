@@ -2,114 +2,130 @@ package com.soundwire
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.soundwire.databinding.ActivityMainBinding
+import com.soundwire.ui.ChatsFragment
+import com.soundwire.ui.ContactsFragment
+import com.soundwire.ui.MusicFragment
+import com.soundwire.ui.ProfileFragment
 
 class MainActivity : AppCompatActivity() {
+
+    enum class Tab { CHATS, CONTACTS, MUSIC, PROFILE }
+
     private lateinit var binding: ActivityMainBinding
-    private val db = Firebase.firestore
+    private lateinit var session: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val user = Firebase.auth.currentUser
-        if (user == null) {
+        session = SessionManager(this)
+
+        if (!session.isLoggedIn()) {
             startActivity(Intent(this, AuthActivity::class.java))
             finish()
             return
         }
 
-        // Обновляем статус пользователя
-        updateUserStatus("В сети")
+        // Инициализация общих синглтонов
+        PresenceRepository.init(this)
+        PlayerManager.init(this)
 
-        binding.btnOpenChats.setOnClickListener {
-            startActivity(Intent(this, ChatListActivity::class.java))
+        setupMiniPlayer()
+
+        // По умолчанию открываем список чатов (как Telegram)
+        if (savedInstanceState == null) {
+            selectTab(Tab.CHATS)
         }
 
-        binding.btnOpenMusic.setOnClickListener {
-            startActivity(Intent(this, MusicSearchActivity::class.java))
-        }
-
-        binding.btnOpenContacts.setOnClickListener {
-            startActivity(Intent(this, ContactsActivity::class.java))
-        }
-
-        binding.btnOpenProfile.setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_profile -> {
-                startActivity(Intent(this, ProfileActivity::class.java))
-                true
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_chats -> {
+                    showFragment(ChatsFragment())
+                    true
+                }
+                R.id.nav_contacts -> {
+                    showFragment(ContactsFragment())
+                    true
+                }
+                R.id.nav_music -> {
+                    showFragment(MusicFragment())
+                    true
+                }
+                R.id.nav_profile -> {
+                    showFragment(ProfileFragment())
+                    true
+                }
+                else -> false
             }
-            R.id.menu_contacts -> {
-                startActivity(Intent(this, ContactsActivity::class.java))
-                true
-            }
-            R.id.menu_settings -> {
-                // Открыть настройки
-                Toast.makeText(this, "Настройки в разработке", Toast.LENGTH_SHORT).show()
-                true
-            }
-            R.id.menu_logout -> {
-                logout()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun updateUserStatus(status: String) {
-        val user = Firebase.auth.currentUser ?: return
-        db.collection("users").document(user.uid).update(
-            "status", status,
-            "lastSeen", com.google.firebase.Timestamp.now()
-        ).addOnFailureListener { e ->
-            // Игнорируем ошибки при обновлении статуса
+    fun selectTab(tab: Tab) {
+        binding.bottomNav.selectedItemId = when (tab) {
+            Tab.CHATS -> R.id.nav_chats
+            Tab.CONTACTS -> R.id.nav_contacts
+            Tab.MUSIC -> R.id.nav_music
+            Tab.PROFILE -> R.id.nav_profile
         }
     }
 
-    private fun logout() {
-        val user = Firebase.auth.currentUser
-        if (user != null) {
-            db.collection("users").document(user.uid).update(
-                "status", "Не в сети",
-                "lastSeen", com.google.firebase.Timestamp.now()
-            ).addOnCompleteListener {
-                Firebase.auth.signOut()
-                startActivity(Intent(this, AuthActivity::class.java))
-                finish()
+    private fun showFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.nav_host_fragment, fragment)
+            .commit()
+    }
+
+    private fun setupMiniPlayer() {
+        // click => открыть полный плеер
+        binding.miniPlayer.setOnClickListener {
+            startActivity(Intent(this, PlayerActivity::class.java))
+        }
+
+        binding.btnMiniPlayPause.setOnClickListener { PlayerManager.togglePlayPause() }
+        binding.btnMiniNext.setOnClickListener { PlayerManager.next() }
+        binding.btnMiniPrev.setOnClickListener { PlayerManager.prev() }
+
+        PlayerManager.currentTrack.observe(this) { track ->
+            if (track == null) {
+                binding.miniPlayer.visibility = View.GONE
+            } else {
+                binding.miniPlayer.visibility = View.VISIBLE
+                binding.tvMiniTitle.text = track.title
+                binding.tvMiniSubtitle.text = track.artist ?: when (track.source) {
+                    TrackSource.LOCAL -> "На телефоне"
+                    TrackSource.SERVER -> "С компьютера"
+                }
+
+                val cover = track.coverUrl
+                if (!cover.isNullOrBlank()) {
+                    Glide.with(this).load(cover).centerCrop().into(binding.ivMiniCover)
+                } else {
+                    binding.ivMiniCover.setImageResource(android.R.drawable.ic_menu_gallery)
+                }
             }
-        } else {
-            Firebase.auth.signOut()
-            startActivity(Intent(this, AuthActivity::class.java))
-            finish()
+        }
+
+        PlayerManager.isPlaying.observe(this) { playing ->
+            binding.btnMiniPlayPause.setImageResource(
+                if (playing == true) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
+            )
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateUserStatus("В сети")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        updateUserStatus("Не в сети")
+    override fun onDestroy() {
+        super.onDestroy()
+        // Если приложение закрывается полностью — отключаем сокет
+        if (isFinishing) {
+            SocketManager.disconnect()
+            PlayerManager.release()
+            VoiceNotePlayer.stop()
+        }
     }
 }
