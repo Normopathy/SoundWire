@@ -4,9 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:name=".App"
@@ -30,31 +28,11 @@
         </activity>
 
         <activity android:name=".AuthActivity" android:exported="false" />
-        <activity android:name=".ChatListActivity" android:exported="false" />
         <activity android:name=".ChatActivity" android:exported="false" />
-        <activity android:name=".MusicSearchActivity" android:exported="false" />
         <activity android:name=".PlayerActivity" android:exported="false" />
-        <activity android:name=".PlaylistsActivity" android:exported="false" />
-        <activity android:name=".ProfileActivity" android:exported="false" />
-        <activity android:name=".ContactsActivity" android:exported="false" />
 
-        <service
-            android:name=".MediaService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
-
-        <service
-            android:name=".MyFirebaseMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="soundwire_fcm" />
+        <activity android:name=".CreateGroupActivity" android:exported="false" />
+        <activity android:name=".ParticipantsActivity" android:exported="false" />
 
     </application>
 
