@@ -63,13 +63,15 @@ class RequestsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val it = items[position]) {
+        // Важно: не используем имя переменной `it`, потому что внутри onClick { ... }
+        // у лямбды тоже есть параметр `it` (View), и это ломает доступ к it.request.
+        when (val item = items[position]) {
             is RequestItem.Header -> {
-                (holder as HeaderVH).tv.text = it.title
+                (holder as HeaderVH).tv.text = item.title
             }
             is RequestItem.Incoming -> {
                 val h = holder as IncomingVH
-                val u = it.request.fromUser
+                val u = item.request.fromUser
                 h.tvName.text = u?.username ?: "Пользователь"
                 h.tvStatus.text = u?.status ?: ""
 
@@ -80,12 +82,13 @@ class RequestsAdapter(
                     h.ivAvatar.setImageResource(android.R.drawable.sym_def_app_icon)
                 }
 
-                h.btnAccept.setOnClickListener { onAccept(it.request.id) }
-                h.btnDecline.setOnClickListener { onDecline(it.request.id) }
+                val reqId = item.request.id
+                h.btnAccept.setOnClickListener { onAccept(reqId) }
+                h.btnDecline.setOnClickListener { onDecline(reqId) }
             }
             is RequestItem.Outgoing -> {
                 val h = holder as OutgoingVH
-                val u = it.request.toUser
+                val u = item.request.toUser
                 h.tvName.text = u?.username ?: "Пользователь"
                 h.tvStatus.text = "Ожидает подтверждения"
 

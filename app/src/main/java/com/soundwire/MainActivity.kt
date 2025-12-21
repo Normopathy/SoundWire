@@ -3,6 +3,9 @@ package com.soundwire
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -83,37 +86,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupMiniPlayer() {
+        // ВНИМАНИЕ:
+        // view_mini_player.xml подключён через <include>.
+        // ActivityMainBinding не всегда генерирует прямые поля для include-лейаута,
+        // поэтому берём ссылки через findViewById.
+
+        val miniPlayer = binding.root.findViewById<View>(R.id.miniPlayer)
+        val btnPlayPause = binding.root.findViewById<ImageButton>(R.id.btnMiniPlayPause)
+        val btnNext = binding.root.findViewById<ImageButton>(R.id.btnMiniNext)
+        val btnPrev = binding.root.findViewById<ImageButton>(R.id.btnMiniPrev)
+        val tvTitle = binding.root.findViewById<TextView>(R.id.tvMiniTitle)
+        val tvSubtitle = binding.root.findViewById<TextView>(R.id.tvMiniSubtitle)
+        val ivCover = binding.root.findViewById<ImageView>(R.id.ivMiniCover)
+
         // click => открыть полный плеер
-        binding.miniPlayer.setOnClickListener {
+        miniPlayer.setOnClickListener {
             startActivity(Intent(this, PlayerActivity::class.java))
         }
 
-        binding.btnMiniPlayPause.setOnClickListener { PlayerManager.togglePlayPause() }
-        binding.btnMiniNext.setOnClickListener { PlayerManager.next() }
-        binding.btnMiniPrev.setOnClickListener { PlayerManager.prev() }
+        btnPlayPause.setOnClickListener { PlayerManager.togglePlayPause() }
+        btnNext.setOnClickListener { PlayerManager.next() }
+        btnPrev.setOnClickListener { PlayerManager.prev() }
 
         PlayerManager.currentTrack.observe(this) { track ->
             if (track == null) {
-                binding.miniPlayer.visibility = View.GONE
+                miniPlayer.visibility = View.GONE
             } else {
-                binding.miniPlayer.visibility = View.VISIBLE
-                binding.tvMiniTitle.text = track.title
-                binding.tvMiniSubtitle.text = track.artist ?: when (track.source) {
+                miniPlayer.visibility = View.VISIBLE
+                tvTitle.text = track.title
+                tvSubtitle.text = track.artist ?: when (track.source) {
                     TrackSource.LOCAL -> "На телефоне"
                     TrackSource.SERVER -> "С компьютера"
                 }
 
                 val cover = track.coverUrl
                 if (!cover.isNullOrBlank()) {
-                    Glide.with(this).load(cover).centerCrop().into(binding.ivMiniCover)
+                    Glide.with(this).load(cover).centerCrop().into(ivCover)
                 } else {
-                    binding.ivMiniCover.setImageResource(android.R.drawable.ic_menu_gallery)
+                    ivCover.setImageResource(android.R.drawable.ic_menu_gallery)
                 }
             }
         }
 
         PlayerManager.isPlaying.observe(this) { playing ->
-            binding.btnMiniPlayPause.setImageResource(
+            btnPlayPause.setImageResource(
                 if (playing == true) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
             )
         }

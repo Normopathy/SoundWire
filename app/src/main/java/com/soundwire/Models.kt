@@ -135,5 +135,7 @@ data class Track(
     val title: String,
     val artist: String? = null,
     val uri: String,
-    val source: TrackSource
+    val source: TrackSource,
+    // Пока обложка опциональная (можно будет добавить позже через metadata)
+    val coverUrl: String? = null
 )
