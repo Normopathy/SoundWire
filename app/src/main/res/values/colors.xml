@@ -7,4 +7,16 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="chat_bg">#F4F5F7</color>
+    <color name="text_primary">#111111</color>
+    <color name="text_secondary">#666666</color>
+    <color name="bubble_in_bg">#FFFFFF</color>
+    <color name="bubble_out_bg">#DCF8C6</color>
+    <color name="bubble_in_text">#111111</color>
+    <color name="bubble_out_text">#111111</color>
+    <color name="input_bg">#FFFFFF</color>
+    <color name="input_stroke">#DDDDDD</color>
+    <color name="toolbar_bg">#1F7A5B</color>
+    <color name="toolbar_text">#FFFFFF</color>
 </resources>
