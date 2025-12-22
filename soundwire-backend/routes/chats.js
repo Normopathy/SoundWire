@@ -110,8 +110,8 @@ router.post('/private', auth, async (req, res) => {
       const [insertRes] = await pool.query('INSERT INTO chats (type) VALUES (\'private\')');
       chatId = insertRes.insertId;
       await pool.query(
-        'INSERT INTO chat_participants (chat_id, user_id, role) VALUES (?, ?, \"admin\"), (?, ?, \"member\")',
-        [chatId, req.userId, chatId, otherUserId]
+        'INSERT INTO chat_participants (chat_id, user_id, role) VALUES (?, ?, ?), (?, ?, ?)',
+        [chatId, req.userId, 'admin', chatId, otherUserId, 'member']
       );
     }
 
