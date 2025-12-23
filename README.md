@@ -78,7 +78,7 @@ Lossless-качество (премиум) **(Не реализовано)** <br
 «Саундтрек момента»: Автоматические плейлисты на основе активности **(Не реализовано)** <br>
 
 Структура проекта <br>
-SoundWire/
+SoundWire/ <br>
 ├─ app/                         # Android-приложение (Kotlin) <br>
 │  ├─ src/main/java/com/soundwire/ <br>
 │  │  ├─ ui/                    # Fragments (Chats/Contacts/Profile/Music/…) <br>
