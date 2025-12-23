@@ -77,4 +77,57 @@ Lossless-качество (премиум) **(Не реализовано)** <br
 Голосовые комнаты: Синхронное прослушивание + голосовое общение **(Не реализовано)** <br>
 «Саундтрек момента»: Автоматические плейлисты на основе активности **(Не реализовано)** <br>
 
+Структура проекта <br>
+SoundWire/
+├─ app/                         # Android-приложение (Kotlin) <br>
+│  ├─ src/main/java/com/soundwire/ <br>
+│  │  ├─ ui/                    # Fragments (Chats/Contacts/Profile/Music/…) <br>
+│  │  ├─ player/                # Кэш/плеер (ExoPlayer cache и т.п.) <br>
+│  │  ├─ MainActivity.kt         # Навигация по вкладкам + мини-плеер <br>
+│  │  ├─ AuthActivity.kt         # Вход/регистрация <br>
+│  │  ├─ ChatActivity.kt         # Экран чата <br>
+│  │  ├─ PlayerActivity.kt       # Полноэкранный плеер <br>
+│  │  ├─ SoundWireApi.kt         # Retrofit API <br>
+│  │  ├─ SocketManager.kt        # Socket.IO клиент (онлайн/сообщения) <br>
+│  │  ├─ SessionManager.kt       # JWT / хранение сессии <br>
+│  │  └─ Models.kt               # DTO/модели <br>
+│  ├─ src/main/res/ <br>
+│  │  ├─ layout/                 # XML-экраны <br>
+│  │  ├─ drawable/               # Иконки/ресурсы <br>
+│  │  ├─ menu/                   # Нижнее меню <br>
+│  │  └─ values/                 # colors, themes, strings <br>
+│  ├─ build.gradle               # Gradle настройки модуля app <br>
+│  └─ proguard-rules.pro <br>
+│ <br>
+├─ soundwire-backend/            # Backend (Node.js + Express + Socket.IO + MySQL) <br>
+│  ├─ index.js                   # Точка входа: Express + маршруты + uploads <br>
+│  ├─ db.js                      # Подключение к MySQL <br>
+│  ├─ socket.js                  # События Socket.IO (чат, presence и т.п.) <br>
+│  ├─ routes/                    # REST API <br>
+│  │  ├─ auth.js                 # Регистрация/логин (JWT) <br>
+│  │  ├─ users.js                # Профили, поиск пользователей <br>
+│  │  ├─ contacts.js             # Контакты + заявки <br>
+│  │  ├─ chats.js                # Чаты/сообщения/участники <br>
+│  │  └─ music.js                # Серверная музыка <br>
+│  ├─ middleware/ <br>
+│  │  └─ auth.js                 # Проверка JWT <br>
+│  ├─ schema.sql                 # Создание БД и таблиц <br>
+│  ├─ migrate.sql                # Миграции <br>
+│  ├─ uploads/                   # Хранилище файлов (аватары/вложения) <br>
+│  │  ├─ avatars/ <br>
+│  │  └─ chats/ <br>
+│  ├─ music/                     # Пример аудио на сервере <br>
+│  ├─ .env.example               # Пример переменных окружения <br>
+│  ├─ .env                       # Локальные секреты <br>
+│  └─ package.json               # Зависимости backend <br>
+│ <br>
+├─ gradle/                       # Gradle wrapper <br>
+├─ build.gradle                  # Gradle настройки проекта <br>
+├─ settings.gradle <br>
+├─ gradle.properties <br>
+├─ local.properties              # Локальный путь к Android SDK <br>
+├─ keystore.properties           # Настройки ключа подписи <br>
+└─ README.md <br>
+
+
 Авторы - Дмитрий Поликарпов, Илья Егоров, Александр Крутицкий.
